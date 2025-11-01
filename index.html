@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>グリーンNH₃証書管理システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: #000000;
+            color: #e4e4e7;
+            overflow-x: hidden;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Title Banner */
+        #titleBanner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #000000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeOut 0.6s ease-out 2.5s forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        #titleBanner h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.04em;
+            margin-bottom: 1rem;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        #titleBanner .subtitle {
+            font-size: 1.2rem;
+            color: #71717a;
+            letter-spacing: 0.02em;
+            animation: slideIn 0.6s ease-out 0.15s both;
+        }
+
+        #titleBanner .tech-tags {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 2rem;
+            animation: slideIn 0.6s ease-out 0.3s both;
+        }
+
+        #titleBanner .tech-tag {
+            padding: 0.4rem 1rem;
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #a1a1aa;
+            letter-spacing: 0.02em;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 1px solid #18181b;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 3rem;
+            height: 56px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo h1 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .logo p {
+            font-size: 0.7rem;
+            color: #52525b;
+            margin-top: 1px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0;
+        }
+
+        .nav-tab {
+            padding: 0 1.25rem;
+            height: 56px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #71717a;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-tab:hover {
+            color: #e4e4e7;
+            border-bottom-color: #3f3f46;
+        }
+
+        .nav-tab.active {
+            color: #ffffff;
+            border-bottom-color: #10b981;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 2.5rem 3rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #0a0a0a;
+            border: 1px solid #18181b;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: #27272a;
+            background: #0f0f0f;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #71717a;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: #10b981;
+        }
+
+        .stat-change.negative {
+            color: #ef4444;
+        }
+
+        /* Alert */
+        .alert {
+            background: #0a0a0a;
+            border: 1px solid #dc2626;
+            border-left: 3px solid #dc2626;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        .alert.active {
+            display: flex;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+
+        .alert-dot {
+            width: 6px;
+            height: 6px;
+            background: #dc2626;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .alert-text {
+            font-size: 0.85rem;
+            color: #fca5a5;
+        }
+
+        .alert-text strong {
+            color: #ffffff;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: #0a0a0a;
+            border: 1px solid #18181b;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .chart-filters {
+            display: flex;
+            gap: 0;
+            background: #000000;
+            border: 1px solid #18181b;
+            border-radius: 6px;
+            padding: 2px;
+        }
+
+        .filter-btn {
+            padding: 0.35rem 0.9rem;
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            color: #71717a;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .filter-btn:hover {
+            color: #e4e4e7;
+        }
+
+        .filter-btn.active {
+            background: #18181b;
+            color: #ffffff;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+
+        /* Table */
+        .table-container {
+            background: #0a0a0a;
+            border: 1px solid #18181b;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #18181b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-box {
+            padding: 0.5rem 1rem;
+            background: #000000;
+            border: 1px solid #18181b;
+            border-radius: 6px;
+            color: #e4e4e7;
+            font-size: 0.8rem;
+            width: 300px;
+            transition: all 0.2s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #3f3f46;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.9rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #18181b;
+            font-size: 0.8rem;
+        }
+
+        th {
+            background: #000000;
+            color: #71717a;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            color: #e4e4e7;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #0f0f0f;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        .status-completed {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        /* Button */
+        .btn {
+            padding: 0.5rem 1.1rem;
+            background: #10b981;
+            color: #000000;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #71717a;
+            border: 1px solid #27272a;
+        }
+
+        .btn-secondary:hover {
+            background: #18181b;
+            color: #e4e4e7;
+            transform: translateY(-1px);
+        }
+
+        /* Page */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: pageIn 0.3s ease-out;
+        }
+
+        @keyframes pageIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Certificate Card */
+        .cert-card {
+            background: #0a0a0a;
+            border: 1px solid #18181b;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+
+        .cert-card:hover {
+            border-color: #27272a;
+        }
+
+        .cert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #18181b;
+        }
+
+        .cert-id {
+            font-size: 0.85rem;
+            color: #10b981;
+            font-weight: 600;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .cert-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .cert-detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .cert-detail-label {
+            font-size: 0.7rem;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .cert-detail-value {
+            font-size: 0.85rem;
+            color: #e4e4e7;
+            font-weight: 500;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #0a0a0a;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #18181b;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #71717a;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #e4e4e7;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #e4e4e7;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.65rem;
+            background: #000000;
+            border: 1px solid #27272a;
+            border-radius: 6px;
+            color: #e4e4e7;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3f3f46;
+        }
+
+        /* Report */
+        .report-section {
+            background: #0a0a0a;
+            border: 1px solid #18181b;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #18181b;
+        }
+
+        .report-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-subtitle {
+            font-size: 0.9rem;
+            color: #71717a;
+        }
+
+        .report-summary {
+            background: #000000;
+            border-left: 3px solid #10b981;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+        }
+
+        .report-summary h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+        }
+
+        .report-summary p {
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: #a1a1aa;
+        }
+
+        .report-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Title Banner -->
+    <div id="titleBanner">
+        <h1>グリーンNH₃証書管理システム</h1>
+        <div class="subtitle">Registry & Book&Claim Platform</div>
+        <div class="tech-tags">
+            <span class="tech-tag">NFT証書</span>
+            <span class="tech-tag">標準API</span>
+            <span class="tech-tag">環境省MRV準拠</span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>グリーンNH₃証書管理システム</h1>
+                <p>Registry & Book&Claim Platform</p>
+            </div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" onclick="showPage('dashboard')">ダッシュボード</button>
+                <button class="nav-tab" onclick="showPage('certificates')">証書管理</button>
+                <button class="nav-tab" onclick="showPage('transactions')">取引履歴</button>
+                <button class="nav-tab" onclick="showPage('analytics')">分析</button>
+                <button class="nav-tab" onclick="showPage('reports')">レポート</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Alert -->
+        <div class="alert" id="alertBanner">
+            <div class="alert-dot"></div>
+            <div class="alert-text">
+                <strong>監査アラート:</strong> 証書ID #NH3-2024-1847 の二重計上の可能性を検出しました
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">総発行証書数</div>
+                    <div class="stat-value" id="totalCerts">2,400</div>
+                    <div class="stat-change positive">
+                        +<span id="certsChange">12.5%</span> 前月比
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">取引量 (tNH₃)</div>
+                    <div class="stat-value" id="tradeVolume">48,750</div>
+                    <div class="stat-change positive">
+                        +<span id="volumeChange">8.3%</span> 前月比
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">ブロックチェーン検証率</div>
+                    <div class="stat-value" id="verificationRate">99.7%</div>
+                    <div class="stat-change positive">
+                        +<span id="rateChange">0.2%</span> 前月比
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">平均処理時間</div>
+                    <div class="stat-value" id="avgTime">2.3<span style="font-size: 1rem; font-weight: 400;">秒</span></div>
+                    <div class="stat-change negative">
+                        -<span id="timeChange">15.2%</span> 前月比
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2 class="chart-title">証書発行・取引推移</h2>
+                    <div class="chart-filters">
+                        <button class="filter-btn active">7日間</button>
+                        <button class="filter-btn">30日間</button>
+                        <button class="filter-btn">90日間</button>
+                    </div>
+                </div>
+                <canvas id="transactionChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2 class="chart-title">業種別証書利用状況</h2>
+                    <div class="chart-filters">
+                        <button class="filter-btn active">全業種</button>
+                        <button class="filter-btn">発電</button>
+                        <button class="filter-btn">海運</button>
+                    </div>
+                </div>
+                <canvas id="industryChart"></canvas>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2 class="chart-title">最新取引</h2>
+                    <input type="text" class="search-box" placeholder="証書ID、企業名で検索...">
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>証書ID</th>
+                            <th>発行元</th>
+                            <th>譲渡先</th>
+                            <th>数量</th>
+                            <th>ステータス</th>
+                            <th>タイムスタンプ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Certificates Page -->
+        <div id="certificatesPage" class="page">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 class="chart-title">証書一覧</h2>
+                <button class="btn" onclick="showModal()">新規証書発行</button>
+            </div>
+            <div id="certificatesList"></div>
+        </div>
+
+        <!-- Transactions Page -->
+        <div id="transactionsPage" class="page">
+            <h2 class="chart-title" style="margin-bottom: 2rem;">取引履歴</h2>
+            <div class="chart-container">
+                <canvas id="transactionFlowChart"></canvas>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>取引ID</th>
+                            <th>証書ID</th>
+                            <th>取引タイプ</th>
+                            <th>送信元</th>
+                            <th>受信先</th>
+                            <th>数量</th>
+                            <th>日時</th>
+                            <th>NFTハッシュ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailedTransactionTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div id="analyticsPage" class="page">
+            <h2 class="chart-title" style="margin-bottom: 2rem;">分析ダッシュボード</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">CO₂削減量 (累計)</div>
+                    <div class="stat-value">125,400<span style="font-size: 1rem; font-weight: 400;">t</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">参加企業数</div>
+                    <div class="stat-value">87</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">国際取引率</div>
+                    <div class="stat-value">34.2%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">取引総額</div>
+                    <div class="stat-value">¥12.5<span style="font-size: 1rem; font-weight: 400;">億</span></div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2 class="chart-title">月次成長トレンド</h2>
+                </div>
+                <canvas id="growthChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2 class="chart-title">地域別分布</h2>
+                </div>
+                <canvas id="regionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Reports Page -->
+        <div id="reportsPage" class="page">
+            <h2 class="chart-title" style="margin-bottom: 2rem;">レポート生成</h2>
+            <div class="report-section">
+                <div class="report-header">
+                    <div class="report-title">グリーンNH₃証書管理システム 月次レポート</div>
+                    <div class="report-subtitle">2025年10月度 運用実績報告書</div>
+                </div>
+                <div class="report-summary">
+                    <h3>エグゼクティブサマリー</h3>
+                    <p>2025年10月度における本システムの運用実績は、証書発行数が前月比12.5%増の2,400件、取引量は48,750tNH₃（前月比8.3%増）を記録しました。ブロックチェーン検証率は99.7%を維持し、システムの信頼性と透明性を確保しています。</p>
+                </div>
+                <div class="report-info-grid">
+                    <div class="cert-detail-item">
+                        <div class="cert-detail-label">レポート期間</div>
+                        <div class="cert-detail-value">2025年10月1日 - 10月31日</div>
+                    </div>
+                    <div class="cert-detail-item">
+                        <div class="cert-detail-label">作成日時</div>
+                        <div class="cert-detail-value" id="reportDate"></div>
+                    </div>
+                    <div class="cert-detail-item">
+                        <div class="cert-detail-label">総証書発行数</div>
+                        <div class="cert-detail-value">2,400 件</div>
+                    </div>
+                    <div class="cert-detail-item">
+                        <div class="cert-detail-label">総取引量</div>
+                        <div class="cert-detail-value">48,750 tNH₃</div>
+                    </div>
+                </div>
+                <div style="margin: 2rem 0;">
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #ffffff; margin-bottom: 1rem;">主要指標</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">ブロックチェーン検証率</div>
+                            <div class="stat-value">99.7%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">平均処理時間</div>
+                            <div class="stat-value">2.3秒</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">二重計上検出件数</div>
+                            <div class="stat-value">0件</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">監査適合率</div>
+                            <div class="stat-value">100%</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin: 2rem 0;">
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #ffffff; margin-bottom: 1rem;">業種別利用状況</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>業種</th>
+                                    <th>証書数</th>
+                                    <th>取引量 (tNH₃)</th>
+                                    <th>シェア</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>発電事業</td>
+                                    <td>1,080</td>
+                                    <td>22,500</td>
+                                    <td>45%</td>
+                                </tr>
+                                <tr>
+                                    <td>海運業</td>
+                                    <td>840</td>
+                                    <td>17,062</td>
+                                    <td>35%</td>
+                                </tr>
+                                <tr>
+                                    <td>製造業</td>
+                                    <td>480</td>
+                                    <td>9,188</td>
+                                    <td>20%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div style="margin: 2rem 0;">
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: #ffffff; margin-bottom: 1rem;">コンプライアンス状況</h3>
+                    <ul style="line-height: 2; color: #a1a1aa; list-style: none; padding: 0;">
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #10b981;">✓</span> 環境省MRVガイドライン準拠: 100%
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #10b981;">✓</span> IMO規制対応: 完全適合
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #10b981;">✓</span> FIP (Feed-in Premium) 認証: 有効
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #10b981;">✓</span> NFT証書改ざん検証: 異常なし
+                        </li>
+                        <li style="padding-left: 1.5rem; position: relative;">
+                            <span style="position: absolute; left: 0; color: #10b981;">✓</span> 標準API互換性: ISO 14064準拠
+                        </li>
+                    </ul>
+                </div>
+                <div style="margin-top: 2rem; text-align: center;">
+                    <button class="btn" onclick="downloadReport()" style="margin-right: 0.75rem;">PDFダウンロード</button>
+                    <button class="btn btn-secondary" onclick="window.print()">印刷</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="issueModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="chart-title">新規証書発行</h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <form onsubmit="issueCertificate(event)">
+                <div class="form-group">
+                    <label class="form-label">発行元企業</label>
+                    <input type="text" class="form-input" placeholder="例: 東京グリーンパワー株式会社" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">数量 (tNH₃)</label>
+                    <input type="number" class="form-input" placeholder="例: 1000" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">生産施設</label>
+                    <input type="text" class="form-input" placeholder="例: 福島再エネ水素プラント" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">認証規格</label>
+                    <select class="form-input" required>
+                        <option>環境省MRV</option>
+                        <option>IMO Maritime</option>
+                        <option>FIP Premium</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; margin-top: 0.5rem;">証書発行</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let certCount = 2400;
+        let volume = 48750;
+        let verificationRate = 99.7;
+        let avgTime = 2.3;
+
+        function initCharts() {
+            const ctx1 = document.getElementById('transactionChart').getContext('2d');
+            window.transactionChart = createLineChart(ctx1, '#10b981');
+
+            const ctx2 = document.getElementById('industryChart').getContext('2d');
+            window.industryChart = createBarChart(ctx2);
+
+            const ctx3 = document.getElementById('transactionFlowChart').getContext('2d');
+            window.transactionFlowChart = createLineChart(ctx3, '#10b981');
+
+            const ctx4 = document.getElementById('growthChart').getContext('2d');
+            window.growthChart = createMultiLineChart(ctx4);
+
+            const ctx5 = document.getElementById('regionChart').getContext('2d');
+            window.regionChart = createDoughnutChart(ctx5);
+        }
+
+        function createLineChart(ctx, color) {
+            return {
+                ctx: ctx,
+                data: Array.from({length: 12}, () => Math.random() * 30 + 50),
+                labels: ['10/26', '10/27', '10/28', '10/29', '10/30', '10/31', '11/01'],
+                color: color,
+                draw: function() {
+                    const width = ctx.canvas.width;
+                    const height = ctx.canvas.height;
+                    const padding = 50;
+                    const chartWidth = width - padding * 2;
+                    const chartHeight = height - padding * 2;
+                    
+                    ctx.clearRect(0, 0, width, height);
+                    
+                    // Grid
+                    ctx.strokeStyle = '#18181b';
+                    ctx.lineWidth = 1;
+                    for (let i = 0; i <= 4; i++) {
+                        const y = padding + (chartHeight / 4) * i;
+                        ctx.beginPath();
+                        ctx.moveTo(padding, y);
+                        ctx.lineTo(width - padding, y);
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#52525b';
+                        ctx.font = '10px -apple-system, sans-serif';
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText((600 - i * 150).toString(), 10, y);
+                    }
+                    
+                    // Line
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    
+                    const stepX = chartWidth / (this.data.length - 1);
+                    for (let i = 0; i < this.data.length; i++) {
+                        const x = padding + stepX * i;
+                        const y = padding + chartHeight - ((this.data[i] - 20) / 60 * chartHeight);
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            const prevX = padding + stepX * (i - 1);
+                            const prevY = padding + chartHeight - ((this.data[i - 1] - 20) / 60 * chartHeight);
+                            const cpX = (prevX + x) / 2;
+                            ctx.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+                        }
+                    }
+                    ctx.stroke();
+                    
+                    // Fill
+                    ctx.lineTo(width - padding, height - padding);
+                    ctx.lineTo(padding, height - padding);
+                    ctx.closePath();
+                    const grad = ctx.createLinearGradient(0, padding, 0, height - padding);
+                    grad.addColorStop(0, this.color === '#10b981' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(96, 165, 250, 0.1)');
+                    grad.addColorStop(1, 'rgba(16, 185, 129, 0)');
+                    ctx.fillStyle = grad;
+                    ctx.fill();
+                    
+                    // Dots
+                    this.data.forEach((value, i) => {
+                        const x = padding + stepX * i;
+                        const y = padding + chartHeight - ((value - 20) / 60 * chartHeight);
+                        ctx.beginPath();
+                        ctx.arc(x, y, 3, 0, Math.PI * 2);
+                        ctx.fillStyle = this.color;
+                        ctx.fill();
+                    });
+                    
+                    // X labels
+                    [0, 1, 2, 3, 4, 5, 6].forEach(i => {
+                        if (i < this.data.length) {
+                            const x = padding + stepX * (i * (this.data.length - 1) / 6);
+                            ctx.fillStyle = '#52525b';
+                            ctx.font = '10px -apple-system, sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(this.labels[i], x, height - 20);
+                        }
+                    });
+                },
+                update: function() {
+                    this.data.push(Math.random() * 30 + 50);
+                    if (this.data.length > 12) this.data.shift();
+                    this.draw();
+                }
+            };
+        }
+
+        function createBarChart(ctx) {
+            return {
+                ctx: ctx,
+                data: [0.08, 0.05, 0.055, 0.048, 0.06, 0.052, 0.046],
+                labels: ['10/26', '10/27', '10/28', '10/29', '10/30', '10/31', '11/01'],
+                colors: ['#fbbf24', '#10b981', '#10b981', '#10b981', '#fbbf24', '#10b981', '#10b981'],
+                draw: function() {
+                    const width = ctx.canvas.width;
+                    const height = ctx.canvas.height;
+                    const padding = 50;
+                    const chartWidth = width - padding * 2;
+                    const chartHeight = height - padding * 2;
+                    
+                    ctx.clearRect(0, 0, width, height);
+                    
+                    // Grid
+                    ctx.strokeStyle = '#18181b';
+                    ctx.lineWidth = 1;
+                    for (let i = 0; i <= 4; i++) {
+                        const y = padding + (chartHeight / 4) * i;
+                        ctx.beginPath();
+                        ctx.moveTo(padding, y);
+                        ctx.lineTo(width - padding, y);
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#52525b';
+                        ctx.font = '10px -apple-system, sans-serif';
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText((0.10 - i * 0.025).toFixed(2), 10, y);
+                    }
+                    
+                    const barWidth = chartWidth / this.data.length * 0.65;
+                    const maxValue = 0.10;
+                    
+                    this.data.forEach((value, i) => {
+                        const x = padding + (chartWidth / this.data.length) * i + (chartWidth / this.data.length - barWidth) / 2;
+                        const barHeight = (value / maxValue) * chartHeight;
+                        const y = padding + chartHeight - barHeight;
+                        
+                        ctx.fillStyle = this.colors[i];
+                        ctx.fillRect(x, y, barWidth, barHeight);
+                    });
+                    
+                    // X labels
+                    this.labels.forEach((label, i) => {
+                        const x = padding + (chartWidth / this.data.length) * i + (chartWidth / this.data.length) / 2;
+                        ctx.fillStyle = '#52525b';
+                        ctx.font = '10px -apple-system, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(label, x, height - 20);
+                    });
+                },
+                update: function() {
+                    this.data = this.data.map(v => Math.max(0.02, Math.min(0.10, v + (Math.random() - 0.5) * 0.01)));
+                    this.draw();
+                }
+            };
+        }
+
+        function createMultiLineChart(ctx) {
+            return {
+                ctx: ctx,
+                data1: Array.from({length: 10}, () => Math.random() * 30 + 50),
+                data2: Array.from({length: 10}, () => Math.random() * 30 + 40),
+                draw: function() {
+                    const width = ctx.canvas.width;
+                    const height = ctx.canvas.height;
+                    const padding = 50;
+                    const chartWidth = width - padding * 2;
+                    const chartHeight = height - padding * 2;
+                    
+                    ctx.clearRect(0, 0, width, height);
+                    
+                    // Grid
+                    ctx.strokeStyle = '#18181b';
+                    ctx.lineWidth = 1;
+                    for (let i = 0; i <= 4; i++) {
+                        const y = padding + (chartHeight / 4) * i;
+                        ctx.beginPath();
+                        ctx.moveTo(padding, y);
+                        ctx.lineTo(width - padding, y);
+                        ctx.stroke();
+                        
+                        ctx.fillStyle = '#52525b';
+                        ctx.font = '10px -apple-system, sans-serif';
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText((100 - i * 25).toString(), 10, y);
+                    }
+                    
+                    const stepX = chartWidth / (this.data1.length - 1);
+                    
+                    // Line 1
+                    ctx.strokeStyle = '#10b981';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    for (let i = 0; i < this.data1.length; i++) {
+                        const x = padding + stepX * i;
+                        const y = padding + chartHeight - (this.data1[i] / 100 * chartHeight);
+                        if (i === 0) ctx.moveTo(x, y);
+                        else {
+                            const prevX = padding + stepX * (i - 1);
+                            const prevY = padding + chartHeight - (this.data1[i - 1] / 100 * chartHeight);
+                            const cpX = (prevX + x) / 2;
+                            ctx.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+                        }
+                    }
+                    ctx.stroke();
+                    
+                    // Fill 1
+                    ctx.lineTo(width - padding, height - padding);
+                    ctx.lineTo(padding, height - padding);
+                    ctx.closePath();
+                    const grad1 = ctx.createLinearGradient(0, padding, 0, height - padding);
+                    grad1.addColorStop(0, 'rgba(16, 185, 129, 0.1)');
+                    grad1.addColorStop(1, 'rgba(16, 185, 129, 0)');
+                    ctx.fillStyle = grad1;
+                    ctx.fill();
+                    
+                    // Line 2
+                    ctx.strokeStyle = '#60a5fa';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    for (let i = 0; i < this.data2.length; i++) {
+                        const x = padding + stepX * i;
+                        const y = padding + chartHeight - (this.data2[i] / 100 * chartHeight);
+                        if (i === 0) ctx.moveTo(x, y);
+                        else {
+                            const prevX = padding + stepX * (i - 1);
+                            const prevY = padding + chartHeight - (this.data2[i - 1] / 100 * chartHeight);
+                            const cpX = (prevX + x) / 2;
+                            ctx.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+                        }
+                    }
+                    ctx.stroke();
+                    
+                    // Dots
+                    this.data1.forEach((value, i) => {
+                        const x = padding + stepX * i;
+                        const y = padding + chartHeight - (value / 100 * chartHeight);
+                        ctx.beginPath();
+                        ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+                        ctx.fillStyle = '#10b981';
+                        ctx.fill();
+                    });
+                    
+                    this.data2.forEach((value, i) => {
+                        const x = padding + stepX * i;
+                        const y = padding + chartHeight - (value / 100 * chartHeight);
+                        ctx.beginPath();
+                        ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+                        ctx.fillStyle = '#60a5fa';
+                        ctx.fill();
+                    });
+                },
+                update: function() {
+                    this.data1.push(Math.random() * 30 + 50);
+                    this.data2.push(Math.random() * 30 + 40);
+                    if (this.data1.length > 10) {
+                        this.data1.shift();
+                        this.data2.shift();
+                    }
+                    this.draw();
+                }
+            };
+        }
+
+        function createDoughnutChart(ctx) {
+            return {
+                ctx: ctx,
+                data: [40, 30, 20, 10],
+                colors: ['#10b981', '#60a5fa', '#fbbf24', '#f87171'],
+                labels: ['関東', '関西', '中部', 'その他'],
+                draw: function() {
+                    const width = ctx.canvas.width;
+                    const height = ctx.canvas.height;
+                    ctx.clearRect(0, 0, width, height);
+                    
+                    const centerX = width / 2 - 80;
+                    const centerY = height / 2;
+                    const radius = Math.min(width, height) / 3.5;
+                    const innerRadius = radius * 0.68;
+                    
+                    let currentAngle = -Math.PI / 2;
+                    const total = this.data.reduce((a, b) => a + b);
+                    
+                    this.data.forEach((value, i) => {
+                        const sliceAngle = (value / total) * Math.PI * 2;
+                        ctx.beginPath();
+                        ctx.arc(centerX, centerY, radius, currentAngle + 0.01, currentAngle + sliceAngle - 0.01);
+                        ctx.arc(centerX, centerY, innerRadius, currentAngle + sliceAngle - 0.01, currentAngle + 0.01, true);
+                        ctx.closePath();
+                        ctx.fillStyle = this.colors[i];
+                        ctx.fill();
+                        currentAngle += sliceAngle;
+                    });
+                    
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = '#000000';
+                    ctx.fill();
+                    
+                    // Legend
+                    const legendX = centerX + radius + 60;
+                    const legendY = centerY - (this.data.length * 28) / 2;
+                    
+                    this.data.forEach((value, i) => {
+                        const y = legendY + i * 32;
+                        ctx.fillStyle = this.colors[i];
+                        ctx.fillRect(legendX, y - 5, 10, 10);
+                        
+                        ctx.fillStyle = '#e4e4e7';
+                        ctx.font = '12px -apple-system, sans-serif';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(this.labels[i], legendX + 18, y + 1);
+                        
+                        ctx.fillStyle = '#71717a';
+                        ctx.textAlign = 'right';
+                        ctx.fillText(value + '%', legendX + 120, y + 1);
+                    });
+                }
+            };
+        }
+
+        function updateStats() {
+            certCount += Math.floor(Math.random() * 5) + 1;
+            volume += Math.floor(Math.random() * 100) + 50;
+            verificationRate = Math.min(99.9, verificationRate + (Math.random() - 0.5) * 0.1);
+            avgTime = Math.max(1.5, Math.min(3.5, avgTime + (Math.random() - 0.5) * 0.2));
+
+            document.getElementById('totalCerts').textContent = certCount.toLocaleString();
+            document.getElementById('tradeVolume').textContent = volume.toLocaleString();
+            document.getElementById('verificationRate').textContent = verificationRate.toFixed(1) + '%';
+            document.getElementById('avgTime').innerHTML = avgTime.toFixed(1) + '<span style="font-size: 1rem; font-weight: 400;">秒</span>';
+        }
+
+        function generateTransactionTable() {
+            const tbody = document.getElementById('transactionTable');
+            const companies = ['東京グリーンパワー', '関西海運', '中部製鉄', '九州エネルギー', '北海道水素'];
+            const statuses = [
+                {class: 'status-completed', text: '完了'},
+                {class: 'status-active', text: '処理中'},
+                {class: 'status-pending', text: '承認待ち'}
+            ];
+
+            const rows = [];
+            for (let i = 0; i < 8; i++) {
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                const amount = (Math.random() * 1000 + 100).toFixed(0);
+                const time = new Date(Date.now() - Math.random() * 3600000).toLocaleTimeString('ja-JP');
+                
+                rows.push(`
+                    <tr>
+                        <td>#NH3-2024-${2400 - i}</td>
+                        <td>${companies[Math.floor(Math.random() * companies.length)]}</td>
+                        <td>${companies[Math.floor(Math.random() * companies.length)]}</td>
+                        <td>${amount} tNH₃</td>
+                        <td><span class="status-badge ${status.class}">${status.text}</span></td>
+                        <td>${time}</td>
+                    </tr>
+                `);
+            }
+            tbody.innerHTML = rows.join('');
+        }
+
+        function generateCertificates() {
+            const container = document.getElementById('certificatesList');
+            const companies = ['東京グリーンパワー', '関西海運', '中部製鉄', '九州エネルギー'];
+            
+            const certs = [];
+            for (let i = 0; i < 6; i++) {
+                certs.push(`
+                    <div class="cert-card">
+                        <div class="cert-header">
+                            <div class="cert-id">#NH3-2024-${2400 - i}</div>
+                            <span class="status-badge status-active">有効</span>
+                        </div>
+                        <div class="cert-details">
+                            <div class="cert-detail-item">
+                                <div class="cert-detail-label">発行元</div>
+                                <div class="cert-detail-value">${companies[Math.floor(Math.random() * companies.length)]}</div>
+                            </div>
+                            <div class="cert-detail-item">
+                                <div class="cert-detail-label">数量</div>
+                                <div class="cert-detail-value">${(Math.random() * 1000 + 500).toFixed(0)} tNH₃</div>
+                            </div>
+                            <div class="cert-detail-item">
+                                <div class="cert-detail-label">発行日</div>
+                                <div class="cert-detail-value">2024-10-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}</div>
+                            </div>
+                            <div class="cert-detail-item">
+                                <div class="cert-detail-label">認証規格</div>
+                                <div class="cert-detail-value">環境省MRV</div>
+                            </div>
+                            <div class="cert-detail-item">
+                                <div class="cert-detail-label">NFTハッシュ</div>
+                                <div class="cert-detail-value" style="font-size: 0.75rem; word-break: break-all; font-family: monospace;">0x${Math.random().toString(16).substr(2, 40)}</div>
+                            </div>
+                            <div class="cert-detail-item">
+                                <div class="cert-detail-label">ブロックチェーン</div>
+                                <div class="cert-detail-value">Ethereum</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 1.25rem; display: flex; gap: 0.5rem;">
+                            <button class="btn">詳細表示</button>
+                            <button class="btn btn-secondary">譲渡</button>
+                        </div>
+                    </div>
+                `);
+            }
+            container.innerHTML = certs.join('');
+        }
+
+        function generateDetailedTransactions() {
+            const tbody = document.getElementById('detailedTransactionTable');
+            const types = ['発行', '譲渡', '償却', '分割'];
+            
+            const rows = [];
+            for (let i = 0; i < 15; i++) {
+                rows.push(`
+                    <tr>
+                        <td>#TX-${10000 + i}</td>
+                        <td>#NH3-2024-${2400 - i}</td>
+                        <td>${types[Math.floor(Math.random() * types.length)]}</td>
+                        <td>東京グリーンパワー</td>
+                        <td>関西海運</td>
+                        <td>${(Math.random() * 500 + 100).toFixed(0)} tNH₃</td>
+                        <td>${new Date(Date.now() - Math.random() * 86400000 * 7).toLocaleString('ja-JP')}</td>
+                        <td style="font-size: 0.7rem; font-family: monospace;">0x${Math.random().toString(16).substr(2, 12)}...</td>
+                    </tr>
+                `);
+            }
+            tbody.innerHTML = rows.join('');
+        }
+
+        function showPage(pageName) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(pageName + 'Page').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showModal() {
+            document.getElementById('issueModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('issueModal').classList.remove('active');
+        }
+
+        function issueCertificate(event) {
+            event.preventDefault();
+            alert('証書を発行しました！NFTハッシュ: 0x' + Math.random().toString(16).substr(2, 40));
+            closeModal();
+            certCount++;
+            updateStats();
+            generateCertificates();
+        }
+
+        function downloadReport() {
+            alert('PDFレポートをダウンロードしています...\n\n実際のシステムでは、詳細なレポートがPDF形式で生成されます。');
+        }
+
+        function checkAlerts() {
+            if (Math.random() < 0.1) {
+                document.getElementById('alertBanner').classList.add('active');
+                setTimeout(() => {
+                    document.getElementById('alertBanner').classList.remove('active');
+                }, 10000);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                initCharts();
+                generateTransactionTable();
+                generateCertificates();
+                generateDetailedTransactions();
+                
+                window.transactionChart.draw();
+                window.industryChart.draw();
+                window.transactionFlowChart.draw();
+                window.growthChart.draw();
+                window.regionChart.draw();
+                
+                document.getElementById('reportDate').textContent = new Date().toLocaleString('ja-JP');
+                
+                setInterval(() => {
+                    updateStats();
+                    window.transactionChart.update();
+                    window.industryChart.update();
+                    window.transactionFlowChart.update();
+                    window.growthChart.update();
+                    generateTransactionTable();
+                }, 3000);
+                
+                setInterval(checkAlerts, 15000);
+            }, 2600);
+        });
+    </script>
+</body>
+</html>
